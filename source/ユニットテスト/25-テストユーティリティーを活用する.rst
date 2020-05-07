@@ -1,0 +1,80 @@
+===================================
+25:テストユーティリティーを活用する
+===================================
+
+テストを書くときは、なるべく便利なユーティリティーを活用しましょう。
+オープンソースとして公開されているライブラリがたくさんあるので、手持ちの知識を蓄えておきましょう。
+
+具体的な失敗
+===============
+
+DjangoのView関数をテストするプログラムから、その失敗を学びましょう。
+
+.. code:: python
+
+   import pytest
+
+   from .models import Organization, Post, User
+   
+   
+   class TestPostDetailView:
+       @pytest.mark.django_db
+       def test_get(self, client):
+           organization = Organization.objects.create(
+               name="beproud",
+           )
+           author = User.objects.create(
+               username="theusername",
+               organization=organization,
+           )
+           post = Post.objects.create(
+               title="ブログ記事のタイトル",
+               body="ブログ記事の本文",
+               author=author,
+               published_at="2018-11-05T00:00:00+0900",
+           )
+
+           res = client.get(f"/posts/{post.id}/")
+
+           assert res.context_data["title"] == "ブログ記事のタイトル"
+           assert res.context_data["body"] == "ブログ記事の本文"
+           assert res.context_data["author_name"] == "theusername"
+
+
+この単体テストは悪くはありませんが、テスト対象に関係しない ``Organization`` のデータまで作成しています。
+``User`` が ``Organization`` に依存しているので仕方なく用意していますが、検証したい項目には関係しないので省いたほうがより良いでしょう。
+
+しかし、複数のテストで使い回す ``organization`` を作ることは推奨しません。
+詳しくは :doc:`26-テストケース毎にテストデータを用意する` で説明します。
+
+ベストプラクティス
+==================
+
+`factory-boy <https://factoryboy.readthedocs.io/en/latest/>`_ を使いましょう。
+不要な :index:`フィクスチャー` の作成が不要になります。
+
+.. code-block:: python
+   :caption: tests.py
+
+   import pytest
+   
+   from .factories import OrganizationFactory, PostFactory, UserFactory
+   
+   
+   class TestPostDetailView:
+       @pytest.mark.django_db
+       def test_get(self, client):
+           post = PostFactory(
+               title="記事タイトル", body="記事本文",
+               author__username="theusername"
+           )
+
+           res = client.get(f"/posts/{post.id}/") 
+
+           assert res.context_data["title"] == "ブログ記事のタイトル"
+           assert res.context_data["body"] == "ブログ記事の本文"
+           assert res.context_data["author_name"] == "theusername"
+
+このテストからインポートしている ``factories.py`` は以下のようになります。
+
+.. omission::

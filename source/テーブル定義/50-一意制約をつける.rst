@@ -1,0 +1,47 @@
+===================
+50:一意制約をつける
+===================
+
+「本番環境で想定しないデータが入ってしまい、エラーになったようです」
+
+このような障害報告を聞いたことがある人は、少なくないと思います。
+その問題点と、解決方法を説明します。もし「まだ聞いたことがない」という方は先に勉強して、将来の問題を回避しましょう。
+
+具体的な失敗
+==================
+
+.. code:: python
+
+   class Product(models.Model):
+       ...
+
+
+   class Review(models.Model):
+       product = models.ForeignKey(Product)
+       user = models.ForeignKey(User)
+
+このテーブル設計では、1つの商品に対して同じユーザーが複数のレビューを投稿できてしまいます。
+1人のユーザーが評価を上げる（下げる）ために複数投稿できる問題があります。
+
+ベストプラクティス
+=======================
+
+仕様上、想定しないデータであればできるだけ一意制約をつけておきましょう。
+
+.. code:: python
+
+   class Review(models.Model):
+        product = models.ForeignKey(Product)
+        user = models.ForeignKey(User)
+        
+        class Meta:
+            constraints = [
+                models.UniqueConstraint(
+                    fields=["product", "user"],
+                    name="unique_product_review"
+                ),
+            ]
+
+:index:`一意制約` があればアプリケーション側で扱う状態を減らせます。
+
+.. omission::

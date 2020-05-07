@@ -1,0 +1,103 @@
+===================================================
+30:テストで確認する内容に関係するデータのみ作成する
+===================================================
+
+テストが無駄に長くなる原因として、無駄にデータを作成しすぎることがあります。
+その失敗と、ちょうど良い解法を見ていきましょう。
+
+具体的な失敗
+===================
+
+Djangoのモデルと、モデル用のファクトリー、そしてモデルを絞り込んで取得する関数を考えます。
+
+.. code-block:: python
+   :caption: factories.py
+
+   import factory
+   
+   from . import models
+   
+
+   class BlogFactory(factory.django.DjangoModelFactory):
+       name = "ブログ名"
+       
+       class Meta:
+           model = models.Blog
+
+   
+   class PostFactory(factory.django.DjangoModelFactory):
+       blog = factory.SubFactory(BlogFactory)
+       title = "タイトル"
+       body = "本文"
+       
+       class Meta:
+           model = models.Post
+
+テスト対象になるのは、以下のPostモデルを絞り込む関数です。
+
+.. code-block:: python
+   :caption: posts.py
+
+   from .models import Post
+   
+   
+   def search_posts(text):
+       if ':' in text:
+           blog_name, post_text = text.split(':', 1)
+           return Post.objects.filter(
+               blog__name__contains=blog_name,
+               title__contains=post_text,
+               body__contains=post_text,
+           )
+       else:
+           return Post.objects.filter(
+               title__contains=text,
+               body__contains=text,
+           )
+
+まず、単体テストで過剰に値を指定している例を見てみましょう。
+
+.. code-block:: python
+   :caption: tests.py
+
+   from .factories import BlogFactory, PostFactory
+   from .posts import search_posts
+   
+   
+   class TestSearchPosts:
+       def test_search_post(self):
+           """ 検索条件から記事を検索する（ブログ名の指定はしない）
+           """
+           blog = BlogFactory(name="ブログ名")
+           post1 = PostFactory(blog=blog, title="八宝菜の作り方", body="しいたけが美味しい")
+           PostFactory(blog=blog, title="プラモデルのイロハ", body="合わせ目消しの極意その1...")
+
+           actual = search_posts("しいたけ")
+
+           assert len(actual) == 1
+           assert actual[0] == post1
+
+このテストメソッドでは「しいたけ」という文字列でPostを検索しています。
+検索対象になるPostを作るのであれば ``title`` か ``body`` のどちらかに「しいたけ」という文字列が含まれていれば十分です。
+ここでは ``body`` に「しいたけ」が含まれているので、十分検索の対象になっています。ですが ``post1`` には不要な ``title`` が指定されています。
+また、このメソッドではブログ名での検索はしていないので、 ``blog`` の指定も不要です。
+
+次は、デフォルト値に頼り過ぎている例を紹介します。
+
+.. omission::
+
+ベストプラクティス
+==================
+
+以下のポイントを守りましょう。
+
+* テストで確認する内容に関係するデータのみ作成する
+* テストに関係しないデータ、パラメーターを作らない、指定しない
+* テストに関係するデータ、パラメーターを作る、指定する（デフォルトに依存しない）
+
+.. omission::
+
+関連
+====
+
+* :doc:`26-テストケース毎にテストデータを用意する`

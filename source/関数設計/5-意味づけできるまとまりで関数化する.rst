@@ -1,0 +1,81 @@
+====================================
+5:意味づけできるまとまりで関数化する
+====================================
+
+無思慮に関数をまとめていませんか？　関数に分離するときは処理のまとまりで分けてはいけません。
+
+具体的な失敗
+=====================
+
+.. code:: python
+
+    def main():
+        with open(...) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                i = row[1]
+                if i < 100:
+                    print(row[0])
+
+この関数は単に「主な処理」として ``main()`` 関数にまとめられているだけです。
+これを「処理のまとまり」で分離してしまうと以下のようになります。
+
+.. code:: python
+
+    def print_row(row):
+        i = row[1]
+        if i < 100:
+            print(row[0])
+
+
+    def main():
+        with open(...) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                print_row(row)
+
+
+関数化することで改善した気持ちになってしまいますが、この分離は問題があります。
+
+.. omission::
+
+ベストプラクティス
+==================
+
+処理の意味、再利用性で関数や処理は分離しましょう。
+「関数に分離しよう」と意気込む前に、処理をそれぞれどう意味づけできるかを考えることが大切です。
+CSV読み込み、 ``100`` との比較という処理が、どういう意味なのかを関数で表します。
+今回は、「価格が100円未満の場合は、買い合わせ対象商品である」という仕様があったとします。
+
+.. code:: python
+
+    import csv
+
+
+    def read_items():
+        """ 商品一覧のCSVデータを読み込んでタプルのジェネレーターで返す
+        各商品は「商品名、価格」のタプルで返される
+        """
+        with open(...) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                name = row[0]
+                price = int(row[1])
+                yield name, price
+
+
+    def is_addon_price(price):
+        """ 価格が「買い合わせ対象商品」の場合Trueを返す
+        """
+        return price < 100
+
+
+    def main():
+        items = read_items()
+        for name, price in items:
+            if is_addon_price(price):
+                print(name)
+
+処理でなく意味でまとめることで、それぞれの処理が「何のために行われているか」が自明になりました。
+
+.. omission::

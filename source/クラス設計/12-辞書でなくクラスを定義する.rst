@@ -1,0 +1,78 @@
+=============================
+12:辞書でなくクラスを定義する
+=============================
+
+クラスを作るのに抵抗感がありませんか？　積極的にクラスを定義する利点と、辞書で処理し続ける問題は何でしょうか。
+
+具体的な失敗
+===================
+
+.. code:: python
+
+   import json
+   from datetime import date
+   
+   
+   def get_fullname(user):
+       return user['last_name'] + user['first_name']
+   
+   
+   def calc_age(user):
+       today = date.today()
+       born = user['birthday']
+       age = today.year - born.year
+       if (today.month, today.day) < (born.month, born.day):
+           return age - 1
+       else:
+           return age
+   
+   
+   def load_user():
+       with open('./user.json', encoding='utf-8') as f:
+           return json.load(f)
+
+この処理の問題は ``get_fullname`` などの関数が「ユーザー」という意味を持つ辞書を期待していることです。
+関数が「 :index:`特定のキーをもつ辞書` 」に縛られるので、他の形式の辞書を渡しても正しく動作しません。
+関数にするのであれば、辞書でなく個別の引数として期待するべきです（ :doc:`../関数設計/7-コレクションを引数にせずintやstrを受け取る` 参照）。
+
+ベストプラクティス
+========================
+
+特定のキーを持つ辞書を期待するなら、クラスを定義しましょう。
+
+.. code:: python
+
+   import json
+   from dataclasses import dataclass
+   from datetime import date
+   
+   
+   @dataclass
+   class User:
+       last_name: str
+       first_name: str
+       birthday: date
+   
+       # 解説:
+       #    クラスにすることで、それぞれの処理をクラスのメソッドやプロパティーとして実装できます。
+       #    ``user.fullname`` のように簡潔にプログラムを書けます。
+       @property
+       def fullname(self):
+           return self.last_name + self.first_name
+   
+       @property
+       def age(self):
+           today = date.today()
+           born = self.birthday
+           age = today.year - born.year
+           if (today.month, today.day) < (born.month, born.day):
+               return age - 1
+           else:
+               return age
+   
+   
+   def load_user():
+       with open('./user.json', encoding='utf-8') as f:
+           return User(**json.load(f))
+
+.. omission::

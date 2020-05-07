@@ -1,0 +1,62 @@
+============================
+4:副作用のない関数にまとめる
+============================
+
+プログラミングにおいて「 :index:`副作用` 」を意識することはとても大切です。
+副作用とは、プログラムが実行された結果に何かしらの状態が変更されることを言います。
+関数が外部にある変数や状態に影響されない場合、同じ入力を与えると常に同じ出力をするはずです。
+テストがしやすく、状態に影響されない関数ができます。
+
+副作用のある関数はどんなもので、どういう注意点があるのでしょうか？
+
+具体的な失敗
+==================
+
+.. code:: python
+
+    def is_valid(article):
+        if article.title in INVALID_TITLES:
+            return False
+
+        # is_valid関数が article.valid の値を書き換えている
+        article.valid = True
+        # .save()を呼び出すことで、外部にデータを保存している
+        article.save()
+        return True
+
+    def update_article(article, title, body):
+        article.title = title
+        article.body = body
+        if not is_valid(article):
+            return
+        article.save()
+        return article
+
+この場合 ``is_valid`` 関数を呼び出しただけで ``article`` の ``.valid`` 値が変更されてしまいます。
+いろいろな関数から副作用があると、開発者が予期しないところでデータが変更されてしまう問題があります。
+予期しないところでデータが変更されると、バグの元になったり :index:`トラブルシューティング` が難しくなったりします。
+
+ベストプラクティス
+==================
+
+この場合は ``is_valid`` 関数では副作用を起こさないほうが良いでしょう。
+関数名を ``is_valid_title`` として「正しいタイトルかどうか」を確認する関数に留めましょう。
+
+.. code:: python
+
+    def is_valid_title(title):
+        return title not in INVALID_TITLES:
+
+    def update_article(article, title, body):
+        if not is_valid_title(title):
+            return
+        article.title = title
+        article.body = body
+        article.valid = True
+        article.save()
+        return article
+
+こうすると ``is_valid_title`` では副作用がないので他の処理からも再利用しやすくなります。
+また、「 ``update_article`` を呼び出したときは副作用がある」というのが明確になります。
+
+.. omission::

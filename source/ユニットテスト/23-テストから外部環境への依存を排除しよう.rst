@@ -1,0 +1,83 @@
+=========================================
+23:テストから外部環境への依存を排除しよう
+=========================================
+
+単体テストを書くときは、テストが外部環境に依存しないように注意しましょう。
+
+次のような単体テストを書いたことはありませんか？
+
+具体的な失敗
+=================
+
+以下の実装のテストを考えましょう。
+
+.. code-block:: python
+   :caption: api.py
+
+   import requests
+   
+   
+   def post_to_sns(body):
+       # 解説: この行で外部にアクセスしている
+       res = requests.post('https://the-sns.example.com/posts', json={"body": body})
+       return res.json()
+       
+   
+   def get_post(post_id):
+       res = requests.get(f'https://the-sns.example.com/posts/{post_id}')
+       return res.json()
+
+このテスト対象のように、外部へのアクセスが発生する処理を単純にテストしてはいけません。
+
+.. code-block:: python
+   :caption: tests.py
+
+   import requests
+   
+   from .api import get_post, post_to_sns
+   
+   
+   class TestPostToSns:
+       def test_post(self):
+           data = post_to_sns("投稿の本文")
+           assert data['body'] == "投稿の本文"
+           
+           data2 = get_post(data['post_id'])
+           assert data2['post_id'] == data['post_id']
+           assert data2['body'] == "投稿の本文"
+
+外部へアクセスするテストを避けるべき理由は以下です。
+
+.. omission::
+
+
+ベストプラクティス
+==================
+
+単体テストから外部環境への依存を排除しましょう。
+``requests`` がバックエンドサーバーへアクセスするのを、 `responses <https://github.com/getsentry/responses>`_ を使ってモックしましょう。
+
+.. code:: python
+
+   import responses
+   
+   from .api import get_post, post_to_sns
+   
+   
+   class TestPostToSns:
+       @responses.activate
+       def test_post(self):
+           # 解説: 外部環境へのアクセスを、responsesを使ってモックしている
+           responses.add(responses.POST, 'https://the-sns.example.com/posts',
+                         json={"body": "レスポンス本文"})
+                         
+           data = post_to_sns("投稿の本文")
+
+           assert data['body'] == "レスポンス本文"
+
+           # 解説: 正しく外部アクセスが呼び出されたことを確認する
+           assert len(responses.calls) == 1
+           assert responses.calls[0].request.body == '{"body": "投稿の本文"}'
+
+.. omission::
+

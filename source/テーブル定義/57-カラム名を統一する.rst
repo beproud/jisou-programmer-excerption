@@ -1,0 +1,51 @@
+=====================
+57:カラム名を統一する
+=====================
+
+データベースを設計したらカラム名がバラバラ、ということはないでしょうか？　
+小さな範囲でもルールを決めておくことで、開発時にタイプミスや勘違いを減らせます。
+
+具体的な失敗
+============
+
+.. code:: python
+
+   class Item(models.Model):
+       name = models.CharField(...)
+       
+       reviewed = models.ForeignKey(User, ...)
+   
+       item_kbn = models.PositiveSmallIntegerField(...)
+       delivery_type = models.PositiveSmallIntegerField(...)
+       
+       publish_dt = models.DateTimeField(...)
+       created_at = models.DateTimeField(...)
+
+このコードには以下のような問題があります。
+
+* ``reviewed`` が外部キーかブール値かわかりにくい
+* ``_type`` と ``_kbn`` でブレている
+* ``_dt`` と ``_at`` でブレている
+
+1つのテーブル内などで表記がブレていると、同じ型のものを類推しにくくなります。
+また、この場合、たとえば ``Item.publish_at`` とタイプミスする確率が上がります。
+
+ベストプラクティス
+======================
+
+カラムの型によってある程度揃えたほうが良いでしょう。
+
+.. code:: python
+
+   class Item(models.Model):
+       name = models.CharField(...)
+       
+       reviewer = models.ForeignKey(User, ...)
+   
+       item_type = models.PositiveSmallIntegerField(...)
+       delivery_type = models.PositiveSmallIntegerField(...)
+       
+       published_at = models.DateTimeField(...)
+       created_at = models.DateTimeField(...)
+
+.. omission::

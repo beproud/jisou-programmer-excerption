@@ -1,0 +1,156 @@
+=============================================
+参考文献
+=============================================
+
+
+参考書籍
+==========
+
+* 『ITエンジニアが覚えておきたい英語動詞30』（板垣政樹著、秀和システム刊、2016年3月）
+* 『Pythonプロフェッショナルプログラミング第3版』（ビープラウド著、秀和システム刊、2018年6月）
+* 『SQLアンチパターン』（Bill Karwin著、オライリージャパン刊、2013年）
+* 『Webエンジニアが知っておきたいインフラの基本』（馬場 俊彰著、マイナビ刊、2014年12月）
+* 『xUnit Test Patterns』（Gerard Meszaros著、Addison-Wesley Professional刊、2007年5月）
+* 『エキスパートPythonプログラミング改訂2版』（Michal Jaworski、Tarek Ziade著、アスキードワンゴ刊、2018年2月）
+* 『図解でなっとく! トラブル知らずのシステム設計 エラー制御・排他制御編』（野村総合研究所、エアーダイブ著、日経BP社 刊、2018年3月）
+* 『文芸的プログラミング』（ドナルド・E.クヌース著、ASCII刊、1994年）
+* 『楽々ERDレッスン』（羽生章洋 著、翔泳社 刊、2006年4月）
+* 『管理ゼロで成果はあがる～「見直す・なくす・やめる」で組織を変えよう』（倉貫義人著、技術評論社刊、2019年1月）
+* 『達人に学ぶDB設計』（ミック 著、翔泳社 刊、2012年3月）
+
+参考サイト
+=============
+
+* Arrange Act Assert http://wiki.c2.com/?ArrangeActAssert
+* Fragile Test at XUnitPatterns.com  http://xunitpatterns.com/Fragile%20Test.html
+* Marketing For Developers https://devmarketing.xyz/
+* Pull Request https://help.github.com/ja/github/collaborating-with-issues-and-pull-requests/about-pull-requests
+* slug https://developer.mozilla.org/ja/docs/Glossary/スラグ
+* The Twelve-Factor App （日本語訳） https://12factor.net/ja/config
+* 「巨大プルリク1件vs細かいプルリク100件」問題を考える（翻訳） https://techracho.bpsinc.jp/hachi8833/2018_02_07/51095
+* エンジニアの「プロの所作」01. まず自分で調べる ：「自分主体で考えて作る」第1歩。わからないことを調べる所作を伝えます - Python学習チャンネル by PyQ https://blog.pyq .jp/entry/professionalism_of_engineer_01
+* ストーリーとしての競争戦略 https://store.toyokeizai.net/books/9784492532706/
+* セマンティック バージョニング 2.0.0 | Semantic Versioning https://semver.org/lang/ja/
+* セルフマネジメントの必須スキル「タスクばらし」そのポイント | Social Change! https://kuranuki.sonicgarden.jp/2016/07/task-break.html
+* ソフトウェア開発時にどのような基準でOSSライブラリを選定するのがよいのか https://yoshinorin.net/2019/08/31/how-to-choose-oss-library/
+* リーン顧客開発 https://www.oreilly.co.jp/books/9784873117218/
+* ローカルなプロセス間通信用のソケット - UNIX https://linuxjm.osdn.jp/html/LDP_man-pages/man7/unix.7.html
+* 匠メソッド http://www.takumi-method.biz/
+* 安全なウェブサイトの作り方 https://www.ipa.go.jp/security/vuln/websecurity.html
+* 安全なウェブサイトの運用管理に向けての20ヶ条 ～セキュリティ対策のチェックポイント～ https://www.ipa.go.jp/security/vuln/websitecheck.html
+* 第１回ＣＤＮ の仕組み（CDNはどんな技術で何ができるのか） https://blog.redbox.ne.jp/what-is-cdn.html
+* 若手開発者の後悔 https://postd.cc/the-sorrows-of-young-developer/
+
+Pythonライブラリ
+=====================
+
+Python公式
+
+* enumerate：Python 3 ドキュメント https://docs.python.org/ja/3/library/functions.html#enumerate
+* logging - Python 用ロギング機能 - Python 3.8.1 ドキュメント https://docs.python.org/ja/3/library/logging.html#logging.Formatter
+* Logging Flow - Logging HOWTO - Python 3.8.1 ドキュメント https://docs.python.org/ja/3/howto/logging.html#logging-flow
+* mock https://docs.python.org/ja/3/library/unittest.mock.html
+* tempfile https://docs.python.org/ja/3/library/tempfile.html
+* TypedDict仕様提案：PEP-589 https://www.python.org/dev/peps/pep-0589/
+* TypedDict：Python 3 ドキュメント https://docs.python.org/ja/3/library/typing.html#typing.TypedDict
+* ソケットプログラミング HOWTO - Python 3.8.1 ドキュメント https://docs.python.org/ja/3/howto/sockets.html
+
+Django公式
+
+* clearsession https://docs.djangoproject.com/ja/2.2/ref/django-admin/#clearsessions
+* DEP 0008 https://github.com/django/deps/blob/master/accepted/0008-black.rst
+* Djangoのコーディングスタイル https://docs.djangoproject.com/ja/2.2/internals/contributing/writing-code/coding-style/
+* Djangoの設定 https://docs.djangoproject.com/ja/2.2/topics/settings/
+* QuerySet API reference https://docs.djangoproject.com/ja/2.2/ref/models/querysets/
+* セッションの使いかた https://docs.djangoproject.com/ja/2.2/topics/http/sessions/#using-file-based-sessions
+* テストツール https://docs.djangoproject.com/ja/2.2/topics/testing/tools/
+* 複数の値を持つリレーションの横断 https://docs.djangoproject.com/ja/2.2/topics/db/queries/#spanning-multi-valued-relationships
+* ALLOWED_HOSTS https://docs.djangoproject.com/ja/2.2/ref/settings/#allowed-hosts
+* SESSION_ENGINE https://docs.djangoproject.com/ja/2.2/ref/settings/#std:setting-SESSION_ENGINE
+
+サードパーティーライブラリのドキュメント
+
+* Django Debug Toolbarの設定 https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+* Gunicornのbind http://docs.gunicorn.org/en/stable/settings.html#bind
+* Gunicornのデプロイ https://docs.gunicorn.org/en/stable/deploy.html
+* TypedDict：mypy公式ドキュメント https://mypy.readthedocs.io/en/latest/more_types.html#typeddict
+
+パッケージ
+
+* aldjemy https://pypi.org/project/aldjemy/
+* APScheduler https://pypi.org/project/APScheduler/
+* autopep8 https://pypi.org/project/autopep8/
+* awesome-python https://github.com/vinta/awesome-python
+* black https://pypi.org/project/black/
+* Celery http://www.celeryproject.org/
+* deform https://docs.pylonsproject.org/projects/deform/en/latest/
+* Django Packages https://djangopackages.org/
+* django-background-tasks https://django-background-tasks.readthedocs.io/
+* django-debug-toolbar https://pypi.org/p/django-debug-toolbar
+* django-environ https://django-environ.readthedocs.io/
+* django-redis https://niwinz.github.io/django-redis/latest/
+* django-silk https://pypi.org/p/django-silk/
+* factory-boy https://factoryboy.readthedocs.io/en/latest/
+* fakeredis https://pypi.org/project/fakeredis/
+* flake8 https://pypi.org/project/flake8/
+* flake8-logging-format https://pypi.org/project/flake8-logging-format/
+* Gunicorn https://pypi.org/project/gunicorn/
+* moto http://docs.getmoto.org/en/latest/
+* nplusone https://pypi.org/p/nplusone
+* Pipenv https://pipenv.kennethreitz.org/
+* Poetry https://python-poetry.org/
+* pycodestyle https://pypi.org/project/pycodestyle/
+* pylint https://pypi.org/project/pylint/
+* python-decouple https://pypi.org/p/python-decouple/
+* responses https://github.com/getsentry/responses
+* SQLAlchemy https://pypi.org/project/SQLAlchemy/
+* uWSGI https://pypi.org/project/uWSGI/
+* virtualenvwrapper https://virtualenvwrapper.readthedocs.io/
+* WTForm https://wtforms.readthedocs.io/en/stable/
+
+
+ミドルウェア
+====================
+
+* Anaconda https://www.anaconda.com/
+* BEGIN - PostgreSQL https://www.postgresql.jp/document/11/html/sql-begin.html
+* COMPOSE_FILE - Docker https://docs.docker.com/compose/reference/envvars/#compose_file
+* Docker https://www.docker.com/
+* Docker公式のPython https://hub.docker.com/_/python
+* Intel Python https://software.intel.com/en-us/distribution-for-python
+* Memcached https://memcached.org/
+* proxy_cache_path設定 - Nginx http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_cache_path
+* pyenv https://github.com/pyenv/pyenv
+* Redis https://redis.io/
+* Vagrant https://www.vagrantup.com/
+* トランザクションの管理  - Oracle http://otndnld.oracle.co.jp/document/products/oracle11g/111/doc_dvd/server.111/E05765-03/transact.htm
+* 名前ベースのバーチャルホスト - Apache https://httpd.apache.org/docs/2.4/ja/vhosts/name-based.html
+* 名前ベースのバーチャルホスト - Nginx http://nginx.org/en/docs/http/request_processing.html
+* 暗黙的なコミットを発生させるステートメント - MySQL https://dev.mysql.com/doc/refman/5.6/ja/implicit-commit.html
+
+サービス
+====================
+
+* AWS CloudFront https://aws.amazon.com/jp/cloudfront/
+* Akamai https://www.akamai.com/jp/ja/
+* Fastly https://www.fastly.jp/
+* GCP Cloud CDN https://cloud.google.com/cdn/
+* Sentry https://sentry.io/
+* プログラマーのためのネーミング辞書 codic https://codic.jp
+
+デスクトップツール
+==============================
+
+* BalsamiqMockup https://balsamiq.com/wireframes/
+* Dash https://kapeli.com/dash
+* Zeal https://zealdocs.org/
+
+標準仕様
+=========================
+
+* Forwarded - MDN https://developer.mozilla.org/ja/docs/Web/HTTP/Headers/Forwarded
+* RFC 7239 - Forwarded HTTP Extension https://tools.ietf.org/html/rfc7239
+* X-Forwarded-For - MDN https://developer.mozilla.org/ja/docs/Web/HTTP/Headers/X-Forwarded-For
+* X-Forwarded-Host - MDN https://developer.mozilla.org/ja/docs/Web/HTTP/Headers/X-Forwarded-Host
+* X-Forwarded-Proto - MDN https://developer.mozilla.org/ja/docs/Web/HTTP/Headers/X-Forwarded-Proto
+

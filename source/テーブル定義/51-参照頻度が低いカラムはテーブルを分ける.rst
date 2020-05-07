@@ -1,0 +1,50 @@
+=========================================
+51:参照頻度が低いカラムはテーブルを分ける
+=========================================
+
+必要なデータすべてを1つのテーブルに押し込めていませんか？　
+テーブルが肥大化する問題と解決方法を説明します。
+
+具体的な失敗
+=====================
+
+.. code:: python
+
+   class User(models.Model):
+       username = models.CharField(...)
+       email = models.EmailField(...)
+       ...
+
+       enable_notification_release = models.BooleanField(..., help_text="リリースのお知らせを受け取る場合True")
+       enable_notification_security = ...
+       enable_notification_mailmagazine = ...
+       enable_notification_important = ...
+
+参照頻度の低い「リリースのお知らせを受け取るかどうか」という情報を、Userというユーザーアカウントを表すテーブルに保持しています。
+大きな問題ではありませんが、より良いテーブル設計の方法があるはずです。
+
+ベストプラクティス
+==============================
+
+「通知の設定」に関する情報を、 ``UserNotificationSettings`` という別のテーブルに保持させます。
+
+.. code:: python
+
+   class User(models.Model):
+       username = models.CharField(...)
+       email = models.EmailField(...)
+       ...
+       
+   
+   class UserNotificationSettings(models.Model):
+       user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+       enable_release = models.BooleanField(..., help_text="リリースのお知らせを受け取る場合True")
+       enable_security = ...
+       enable_mailmagazine = ...
+       enable_important = ...
+
+テーブルのカラムが増えると参照や :index:`JOIN` が遅くなる問題があります。
+参照したときのデータ転送時に、データ量が多くなり、JOINする際に、必要な一時テーブルの容量が多くなるためです。
+
+.. omission::

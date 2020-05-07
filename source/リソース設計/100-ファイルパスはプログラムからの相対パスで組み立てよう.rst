@@ -1,0 +1,60 @@
+========================================================
+100:ファイルパスはプログラムからの相対パスで組み立てよう
+========================================================
+
+プログラムが外部ファイルを扱うとき、いざ本番にあげたらファイルがあるのにプログラムがファイルを見つけられなくて困ったことはありませんか？　
+プログラムから外部ファイルの位置を指定する方法を見直しましょう。
+
+
+具体的な失敗
+==================
+
+たとえば以下のようにCSVファイルを利用するプログラムがあったとします。
+
+.. code:: python
+
+   # このファイルのパスは「project/scripts/read_csv.py」とする
+
+   import csv
+   from pathlib import Path
+
+   CSV_PATH = Path('target.csv')
+
+   with CSV_PATH.open(mode='r') as fp:
+        reader = csv.reader(fp)
+        for row in reader:
+            print(row)
+
+.. omission::
+
+このプログラムは ``scripts`` ディレクトリ以外からは実行できないという制限が意図せず生まれてしまっています。
+
+
+ベストプラクティス
+==================
+
+どこからプログラムが実行されても適切に動くようにパスを組み立てましょう。
+実行されるプログラムを起点したパスを動的に組み立てて利用すると良いでしょう。
+
+.. code:: python
+
+   import csv
+   from pathlib import Path
+
+   # 起点となるプログラムがあるパス
+   here = Path(__file__).parent
+   CSV_PATH = here / 'target.csv'
+
+   with CSV_PATH.open(mode='r') as fp:
+        reader = csv.reader(fp)
+        for row in reader:
+            print(row)
+
+.. index:: __file__
+
+.. omission::
+
+関連
+====
+
+* :doc:`101-ファイルを格納するディレクトリを分散させる`

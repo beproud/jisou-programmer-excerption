@@ -1,0 +1,53 @@
+=========================================
+24:テスト用のデータはテスト後に削除しよう
+=========================================
+
+テスト用に生成されたテスト用のファイルが原因で、別のテストが失敗してしまったり
+不必要にマシンのディスク容量を占有してしまったりします。
+ここでは、テスト用のデータやファイルをどう扱うべきかについて説明します。
+
+
+具体的な失敗例
+==================
+
+事前準備としてpytestの ``setup_method`` でテスト用のCSVを生成するコード例です。
+このコードは実行時にテスト用のCSVが用意されますが、ずっとファイルが残り続けます。
+
+.. code:: python
+
+
+  class TestImportCSV:
+  
+      def setup_method(self, method):
+
+          self.test_csv = 'test_data.csv' # <- 削除されないのでテスト実行後も永遠に残り続ける
+          with open(self.test_csv, mode="w", encoding="utf-8") as fp:
+              fp.writelines([
+                  'Spam,Ham,Egg\n',
+                  'Spam,Ham,Egg\n',
+                  'Spam,Ham,Egg\n',
+                  'Spam,Ham,Egg\n',
+                  'Spam,Ham,Egg\n',
+              ])
+  
+      def test_import(self):
+          from spam.hoge import import_csv
+          from spam.models import Spam
+  
+          import_csv(self.test_csv)
+  
+          assert Spam.objects.count() == 5
+
+
+このCSVはわずか5件ですが、それでも意識的に削除しない限りマシンのディスク容量を占有してしまいます。
+また削除されていないので、誤って他のテストケースが参照した場合、テストが失敗してしまう可能性があります。
+
+
+ベストプラクティス
+==================
+
+テスト用の一時的なファイルを作ったときは、テストケースが終わるタイミングで削除しましょう。
+なるべく他のテストケースに影響を与えない状態を作れるように工夫できると良いです。
+
+.. omission::
+

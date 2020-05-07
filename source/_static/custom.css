@@ -1,0 +1,89 @@
+/* 本文のフォント設定: 文字サイズ */
+.body {
+    font-size: 130%
+}
+
+/* 本文のフォント設定: 文字詰め */
+.body:not(.highlight) {
+    font-feature-settings: "pkna";
+    line-height: 1.6;
+}
+
+/* コードブロックのフォント設定: 固定幅 */
+pre {
+    background-color: transparent !important;
+    font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
+}
+
+/* インラインリテラル */
+span.pre {
+    padding: 0 0.3em;
+}
+
+/* ページタイトルのフォント設定と罫線 */
+h1 {
+    font-size: calc(1.2vw + 1rem);
+    font-weight: 600;
+    line-height: 1.2 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, .2);
+    padding-bottom: 1rem;
+    margin-bottom: 0.5em;
+}
+
+/* セクション見出し */
+h2 {
+    border-left: 1em solid #90d030;
+    padding-left: .7rem;
+    padding-bottom: .1rem;
+}
+
+/* トップページ: 自走プログラマー へのリンク */
+div.wraparound {
+    padding: 1em;
+    display: flex;
+}
+div.wraparound p {
+    padding: 0 1em;
+    margin: 0;
+    align-self: center;
+}
+div.wraparound a img {
+    vertical-align: middle;
+    width: 120px;
+    min-width: 120px;
+    height: 150px;
+}
+
+/* omission 自走プログラマー へのリンク */
+div.omission {
+    background-color: #f0fff0;
+    border: .1em dotted #008020;
+    padding: 1em;
+    margin: 1em 3em;
+    font-size: 110%;
+    display: flex;
+}
+div.omission p {
+    padding: 0 1em 0 0;
+    margin: 0;
+    align-self: center;
+}
+div.omission p img {
+    vertical-align: middle;
+    width: 80px;
+    min-width: 80px;
+    height: 100px;
+}
+
+/* banner */
+div.books a.book-tspp {
+    display: block;
+    width: 159px;
+    height: 200px;
+    margin: 4px auto;
+    background-image: url("/_images/cover.jpg");
+    background-size: contain;
+}
+div.books div.sale > ul > li {
+    margin: 10px 0;
+}

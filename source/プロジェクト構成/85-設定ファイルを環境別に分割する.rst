@@ -1,0 +1,81 @@
+=================================
+85:設定ファイルを環境別に分割する
+=================================
+
+.. maigo:: 設定ファイルが1つ
+
+    * 後輩W：Djangoアプリで環境別の設定を用意するのは、 ``settings.py`` をコピーして値を変えれば良いんでしょうか？
+    * 先輩T：そうだね、Djangoは使用する設定ファイルをオプションで指定できるからね。でもコピーしちゃうと同じような変更を複数のファイルに書かないといけなくなるんじゃないかな。
+    * 後輩W：はい、まさにそれが面倒だなと思って。他に良い方法がありますか？
+    * 先輩T： ``base.py`` に共通の設定を書いて、環境別の設定で継承すると良いよ。
+
+プログラムの設定を環境別に分けて用意することは、Djangoに限らず他のWebアプリケーションフレームワークやWeb以外のアプリでも行われます。
+たとえば、本番環境（production.py）と動作確認環境（staging.py）では設定が異なりますし、共有の開発環境（dev.py）や個人開発環境（local.py）、テスト実行時（test.py）などで設定をそれぞれ変える必要があります。
+
+具体的な失敗
+========================
+
+.. index:: settings.py
+
+プロジェクト開始時は、1つの設定ファイルから始まります。
+Djangoであれば、設定ファイル ``settings.py`` は ``django-admin startproject`` で自動生成されます。
+
+.. code-block:: python
+  :caption: ``settings.py``
+
+  import os
+  BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  DEBUG = True
+  ALLOWED_HOSTS = []
+  INSTALLED_APPS = [
+      'django.contrib.admin',
+      'django.contrib.auth',
+      ...
+      'myapp',
+  ]
+  # MIDDLEWARE = [...]
+  DATABASES = {
+      'default': {
+          'ENGINE': 'django.db.backends.sqlite3',
+          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+      }
+  }
+  # 以下省略
+
+開発が進むにつれて、動作確認環境を用意することになったとします。
+動作確認環境ではデータベースにPostgreSQLを使い、デバッグ用画面は使わないことにします。
+このため、 ``settings.py`` を複製して ``settings_staging.py`` を作成し、 ``DEBUG`` と ``DATABASES`` の値だけ書き換えます。
+
+そして、Djangoが動作確認環境用の設定で起動するように、環境変数 ``DJANGO_SETTINGS_MODULE=settings_staging.py`` を設定して起動することにします [#djangosettings]_ 。
+
+この方法はシンプルですが、多くの同じ設定を2つのファイルに持つことになります。
+このため、設定変更を行う場合は2つのファイルに同じような変更を行う必要があります。
+本番環境やテスト用設定など他の環境が増えると、この手間はさらに増えていき、修正漏れなどの原因になってしまいます。
+
+.. [#djangosettings] https://docs.djangoproject.com/ja/2.2/topics/settings/
+
+ベストプラクティス
+==================
+
+:index:`環境別設定` のために、設定ファイルを共通部分と環境依存部分に分割しましょう。
+
+.. omission::
+
+これで、 ``base.py`` 、 ``local.py`` 、 ``staging.py`` の3つに分割されました。
+この方針で進めると、他にあと2つ、本番環境用の ``production.py`` とテスト実行時用の ``test.py`` が作られることになるでしょう。
+こうすることで、設定変更のほとんどは ``base.py`` を書き換えるだけで済み、環境別の設定は環境名のファイルを変更すれば済むようになります。
+たとえば、ローカル環境用に :index:`django-silk` [#silk]_ を追加するには ``local.py`` だけを変更します。
+
+.. code-block:: python
+  :caption: ``settings/local.py``
+
+  from .base import *  # base.py のデフォルト設定を読み込み
+
+  INSTALLED_APPS.append('silk')  # 追加
+  MIDDLEWARE.append('silk.middleware.SilkyMiddleware')  # 追加
+  INTERNAL_IPS = ['127.0.0.1']
+
+本節では、環境依存の設定値を分割管理する方法について説明しました。
+次の :doc:`86-状況依存の設定を環境変数に分離する` では、状況によって変更したい設定値の扱い方について説明します。
+
+.. [#silk] :doc:`../トラブルシューティング・デバッグ/76-シンプルに実装しパフォーマンスを計測して改善しよう` を参照

@@ -1,0 +1,73 @@
+=============================================
+21:テストケースは準備、実行、検証に分割しよう
+=============================================
+
+他人の書いたテストコードを見たときに漠然と理解しづらいと思ったことはありませんか？　
+ここではテストケースの見やすい書き方について紹介します。
+
+.. maigo:: テストコードはゴチャっとしてるもの？
+
+    * 後輩W：んー？
+    * 先輩T：どうしたの？
+    * 後輩W：自分で以前書いたテストコードを見直したいんですけど、ぱっと見どこを直していいのかわからないんですよね。
+    * 先輩T：なるほどーちょっと見てみよう。
+    * 後輩W：はい。
+    * 先輩T：これはもう少しテストケースのコードを見やすく分けたほうがいいね。
+    * 後輩W：どういうことですか？
+    * 先輩T：だいたいユニットテストのテストケースでやることって、テスト対象を実行するための準備と、対象の実行、最後に検証（アサート）っていう3段階に分かれるんだよ。
+      だからその3つに分けてテストケースのコードを書いておくと、あとで他の人が見てもわかりやすいってことだね。
+    * 後輩W：ふむふむ。わかりました。やってみます。
+
+
+具体的な失敗
+==================
+
+これはDjangoアプリで会員登録をするAPIのテストコードです。
+どこまでがテストの準備で、どこからがテスト対象の実行か区別がつきますか？
+
+.. code:: python
+
+    class TestSignupAPIView:
+    
+        @pytest.fixture
+        def target_api(self):
+            return "/api/signup"
+    
+        def test_do_signup(self, target_api, django_app):
+            from account.models import User
+            params = {
+                "email": "signup@example.com"
+                "name": "yamadataro",
+                "password": "xxxxxxxxxxx",
+            }
+            res = django_app.post_json(target_api, params=params)
+            user = User.objects.all()[0]
+            expected = {
+                "status_code": 201,
+                "user_email": "signup@example.com",
+            }
+            actual = {
+                "status_code": res.status_code,
+                "user_email": user.email,
+            }
+            assert expected == actual
+
+
+開発者はテストコードを手がかりにテスト対象処理の用途や仕様を確認します。
+テストコードが見づらかったり、理解しづらかったりすると、リファクタリングやテストの修正にも無駄に時間を費やしてしまいます。
+
+ベストプラクティス
+==================
+
+読みやすくするために、テストコードを **準備（Arrange）** と **実行（Act）** と  **検証（Assert）**  に分けましょう。
+
+.. omission::
+
+.. index:: Arrange Act Assertパターン
+
+.. column:: Arrange Act Assertパターン
+
+    ここで紹介したテクニックは、Arrange Act Assertパターンとして知られています。
+    興味のある人はぜひ原文を読んでみてください。
+
+    * Arrange Act Assert http://wiki.c2.com/?ArrangeActAssert

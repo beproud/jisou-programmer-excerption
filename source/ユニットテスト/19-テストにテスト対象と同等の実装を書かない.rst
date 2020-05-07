@@ -1,0 +1,61 @@
+===========================================
+19:テストにテスト対象と同等の実装を書かない
+===========================================
+
+**テストを書けと言われるが、どう書けば良いかピンとこない** という方は多いのではないでしょうか。
+次のような例はとてもありがちな失敗です。
+
+具体的な失敗
+===================
+
+以下のMD5を計算する関数 ``calc_md5`` の単体テストを考えましょう。
+
+.. code-block:: python
+   :caption: main.py
+
+   import hashlib
+   
+   
+   def calc_md5(content):
+       content = content.strip()
+       m = hashlib.md5()
+       m.update(content.encode('utf-8'))
+       return m.hexdigest()
+
+この実装の単体テスト内で、実装内でも使われている ``hashlib.md5`` を使ってはいけません。
+
+.. code-block:: python
+   :caption: tests.py
+
+   import hashlib
+   from main import calc_md5
+
+
+   def test_calc_md5():
+       actual = calc_md5(" This is Content ")
+       m = hashlib.md5()
+       m.update(b"This is Content")
+       assert actual == m.hexdigest()
+
+よく見ると、テストの中に ``calc_md5`` の実装と全く同じ処理が含まれています。
+これではテストが成功することは間違いないので、テストの意味がありません。
+実装で根本的に処理が間違っていても、テストが同じ結果になるので間違いには気づけません。
+
+ベストプラクティス
+==================
+
+テスト内で入出力を確認するときは、文字列や数値などの値をテスト内に直接書きましょう。
+テスト内に、 :index:`テスト対象` とほぼ同等の実装を書いてはいけません。
+
+.. code-block:: python
+   :name: test_calc_md5_correct
+   :caption: tests.py
+
+   from main import calc_md5
+   
+   
+   def test_calc_md5():
+       actual = calc_md5(" This is Content ")
+       assert actual == b"e61994e96b20e3965b61de16077e18c7"
+
+.. omission::

@@ -1,0 +1,62 @@
+===============================================
+20:1つのテストメソッドでは1つの項目のみ確認する
+===============================================
+
+単体テストの書き方がわかっても、どのように各単体テストを分割すればよいかを考えるのは難しいでしょう。
+次のような単体テストを書いてしまった経験はないでしょうか？
+
+具体的な失敗
+====================
+
+今回は次のような、単純な関数のテストを考えます。
+
+.. code:: python
+
+   def validate(text):
+       return 0 < len(text) <= 100
+
+1つの単体テストに動作確認を詰め込みすぎてはいけません。
+
+.. code:: python
+
+   class TestValidate:
+       def test_validate(self):
+           assert validate("a")
+           assert validate("a" * 50)
+           assert validate("a" * 100)
+           assert not validate("")
+           assert not validate("a" * 101)
+
+こうすると、 ``test_validate`` は「 ``validate`` 関数の何を確認しているのか」がわからなくなります。
+単体テストを実行してエラーになったときも「 ``test_validate`` でエラーがあった」と表示されるので、具体的にどういうケースでエラーがあったのかがわかりません。
+
+ベストプラクティス
+==================
+
+1つの :index:`テストメソッド` では、1つの項目のみ確認するようにしましょう。
+
+.. code:: python
+
+    class TestValidate:
+        def test_valid(self):
+            """ 検証が正しい場合
+            """
+            assert validate("a")
+            assert validate("a" * 50)
+            assert validate("a" * 100)
+            
+        def test_invalid_too_short(self):
+            """ 検証が正しくない: 文字が短すぎる場合
+            """
+            assert not validate("")
+           
+        def test_invalid_too_long(self):
+            """ 検証が正しくない: 文字が長すぎる場合
+            """
+            assert not validate("a" * 101)
+
+このテストでは3つのメソッドに分割しています。
+テストメソッドの名前を明確にすると、その名前からテストしている内容がわかります。
+:index:`docstring` も書くとよりわかりやすくなります。
+
+.. omission::

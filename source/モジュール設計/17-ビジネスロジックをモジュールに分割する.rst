@@ -1,0 +1,73 @@
+=========================================
+17:ビジネスロジックをモジュールに分割する
+=========================================
+
+モジュールを分割する際は「 :index:`ビジネスロジック` 」を意識することが大切です。
+ビジネスロジックとは具体的な業務に必要な処理のことです。たとえば商品、購入、在庫などを扱うプログラムのことを言います。
+
+ビジネスロジックとモジュール分割がどう関係するのでしょうか？
+
+具体的な失敗
+====================
+
+以下の例では :index:`コントローラー` （View関数）をまとめる ``views.py`` モジュールに、View関数でない関数も記述してしまっています。
+
+.. code-block:: python
+   :caption: views.py
+
+   from some_payment_asp import purchase_item
+
+
+   def render_purchase_mail(item):
+       return render_to_string('payment/item_purchase.txt', {'item': item})
+   
+   
+   def purchase(user, item, amount):
+       purchase_item(user.card.asp_id, item.asp_id, amount=amount)
+       PurchaseHistory.objects.create(item=item, user=request.user)
+       body = render_purchase_mail(item)
+       send_mail(
+    	   '購入が完了しました',
+    	   body,
+    	   settings.PAYMENT_PURCHASE_MAIL',
+    	   [user.email],
+    	   fail_silently=False,
+   	)
+   
+   
+   def item_purchase(request, item_id):
+       item = get_object_or_404(Item, id=item_id)
+       purchase(request.user, item, amount=1)
+
+この場合 ``item_purchase`` だけがView関数なのに、他の関数もView関数のように見えてしまいます。
+より適切な別のモジュールに分割すべきです。
+
+ベストプラクティス
+==================
+
+ビジネスロジックを専用のモジュールに分割しましょう。
+モジュール名はこの場合、 ``payment.py`` とするのが良いでしょう。
+
+.. code-block:: python
+   :caption: payment.py
+
+   from some_payment_asp import purchase_item
+
+
+   def render_purchase_mail(item):
+       return render_to_string('payment/item_purchase.txt', {'item': item})
+   
+   
+   def purchase(user, item, amount):
+       purchase_item(user.card.asp_id, item.asp_id, amount=amount)
+       PurchaseHistory.objects.create(item=item, user=request.user)
+       body = render_purchase_mail(item)
+       send_mail(
+    	   '購入が完了しました',
+    	   body,
+    	   settings.PAYMENT_PURCHASE_MAIL',
+    	   [user.email],
+    	   fail_silently=False,
+   	)
+
+.. omission::

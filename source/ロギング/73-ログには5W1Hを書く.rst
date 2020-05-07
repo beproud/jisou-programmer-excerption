@@ -1,0 +1,74 @@
+=====================
+73:ログには5W1Hを書く
+=====================
+
+.. maigo:: どんな情報が必要かを知らず「とりあえず」で書かれてしまうログ出力
+
+    * 後輩W：どこまで処理が実行されたかをログに残すように、って言われたんですけど、とりあえず関数の開始と終了をログに出したら良いですか？
+    * 先輩T：うーん。関数の呼び出しだけわかっても、知りたいことはわからないよ。5W1Hを書くようにしよう。
+
+「ログに何を書くべきか」は、ロギングにおいて一番難しく、一番大切なことです。
+次のエラーログの問題を考えましょう。
+
+具体的な失敗
+=================
+
+.. code:: python
+
+   def main():
+       logger.info("取り込み開始")
+       
+       sales_data = load_sales_csv()
+       logger.info("CSV読み込み済み")
+       
+       for code, sales_rows in sales_data:
+           logger.info("取り込み中")
+           try:
+               for row in sales:
+                   # 1行1行、データを処理する
+                   ...
+           except:
+               logger.error("エラー発生")
+       
+       logger.info("取り込み処理終了")
+
+このロギングでは、実際にエラーが発生したときに原因の特定は難しいでしょう。
+ログが開始と終了しか残っておらず、処理全体でエラー処理がされているからです。
+
+ベストプラクティス
+========================
+
+特に長時間実行されるコマンドや、夜間実行される :index:`バッチ処理` は細かめにログを残すべきです。
+エラーがあった際に原因の特定が格段にやりやすくなります。
+
+.. code:: python
+
+   def main():
+       try:
+           logger.info("売上CSV取り込み処理開始")
+
+           sales_data = load_sales_csv()
+           logger.info("売上CSV読み込み済み")
+           
+           for code, sales_rows in sales_data:
+               logger.info("取り込み開始 - 店舗コード: %s, データ件数: %s", code, len(sales_rows))
+               try:
+                   for i, row in enumerate(sales_rows, start=1):
+                       logger.debug("取り込み処理中 - 店舗(%s): %s行目", code, i)
+                       ...
+               except Exception as exc:
+                   logger.warning("取り込み時エラー - 店舗(%s) %s行目: エラー %s", code, i, exc, exc_info=True)
+                   continue
+               logger.info("取り込み正常終了 - 店舗コード: %s", code)
+           
+           logger.info("売上CSV取り込み処理終了")
+       except Exception as exc:
+           logger.error("売上CSV取り込み処理で予期しないエラー発生: エラー %s", exc, exc_info=True)
+
+細かくログを残すように変更していますが、重要なバッチ処理であればこの程度は必要です。
+各店舗の処理毎にインフォログを（店舗コード付きで）残したり、行単位のログをワーニングログとして残すなどの工夫に注目してください。
+処理の :index:`トレーサビリティ` を常に意識しましょう。
+
+ログメッセージに何を書けば良いかわからないときは、次のような5W1Hを意識しましょう。
+
+.. omission::

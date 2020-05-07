@@ -1,0 +1,43 @@
+====================================
+9:関数の引数に可変長引数を乱用しない
+====================================
+
+Pythonの便利な機能である :index:`可変長引数` の ``*args`` 、 ``**kwargs`` ですが、無思慮に使いすぎるとバグを仕込みやすいプログラムになります。
+
+どういった問題があるのでしょうか？　プログラムを見ながら考えてみましょう。
+
+具体的な失敗
+===============
+
+.. code:: python
+
+   class User:
+       def __init__(self, **kwargs):
+           self.name = kwargs['name']
+           self.mail = kwargs.get('mail')
+
+この ``User`` は以下のように、クラスが期待していない ``email=`` 引数を受け取れてしまいます。
+``email=`` と勘違いしてプログラムした場合に、エラーになりません。
+
+.. code:: python
+
+   >>> user = User(name="hiroki", email="hiroki@example.com")
+
+ここで ``user.mail`` は ``None`` になります。
+予期しないデータが作成されているのにエラーにならないので、プログラムの別の場所でエラーになったり、必要なデータが保存されない問題があります。
+
+ベストプラクティス
+==================
+
+不用意に ``*args`` 、 ``**kwargs`` を使わずに個別の引数で指定しましょう。
+
+.. code:: python
+
+   class User:
+       def __init__(self, name, mail=None):
+           self.name = name
+           self.mail = mail
+
+この場合、存在しない引数を指定すればエラーになります。
+
+.. omission::

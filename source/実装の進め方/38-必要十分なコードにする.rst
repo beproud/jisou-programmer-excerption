@@ -1,0 +1,67 @@
+=========================
+38:必要十分なコードにする
+=========================
+
+機能を開発中についつい気分が乗って余計な実装まで盛り込んでしまった経験はありませんか？　
+シンプルに必要十分なコードを書くことがなぜ大切なのか考えてみましょう。
+
+具体的な失敗
+===================
+
+あるユーザー情報のつまった辞書のリスト中から **特定の性別のデータだけを抜き出だすような関数** 
+を実装するという開発タスクをアサインされたとします。
+
+
+.. code:: python
+
+  # ユーザー情報のデータ
+  data_list = [
+      {'name': 'shimizukawa',  'gender': 'male',  'age': 40 },
+      {'name': 'spam',  'gender': 'female',  'age': 10 },
+      {'name': 'ham',  'gender': 'none',  'age': 20 },
+      {'name': 'egg',  'gender': 'male',  'age': 70 },
+  ]
+
+
+ここからデータの抽出ロジックを書いていくうちに、将来的にもっといろんなパターンが必要になるんじゃないかと考え、
+いろんなパターンで検索できる関数を実装してしまいました。
+
+.. code:: python
+
+  def filter_various_pattern(data_list, search_key, search_value, search_op):
+      """ とにかくいろんなパターンで絞り込みができる関数 """
+
+      result = []
+      for data in data_list:
+          target_value = data[search_key]
+          if search_op == 'eq' and target_value == search_value:
+              result.append(data)
+          elif search_op == 'gt' and target_value > search_value:
+              result.append(data)
+          elif search_op == 'gte' and target_value >= search_value:
+              result.append(data)
+          elif search_op == 'lt' and target_value < search_value:
+              result.append(data)
+          elif search_op == 'lte' and target_value <= search_value:
+              result.append(data)
+          elif search_op == 'is' and target_value is search_value:
+              result.append(data)
+          elif search_op == 'startswith' and target_value.startswith(search_value):
+              result.append(data)
+          elif search_op == 'endswith' and target_value.endswith(search_value):
+              result.append(data)
+      return result
+
+  # Use function
+  filter_various_pattern(data_list, 'gender', 'male', 'eq')
+
+.. omission::
+
+ベストプラクティス
+==================
+
+あらゆるパターンに対応できるものよりも、目的を絞った実装をするほうが、将来的な保守性や、拡張のしやすさを維持できます。
+今回の例で言えば **特定の性別のデータだけを抜き出す** という目的を満たす最小限のコードは以下のようになります。
+
+.. omission::
+

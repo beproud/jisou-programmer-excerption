@@ -1,0 +1,67 @@
+=================================================
+14:別メソッドに値を渡すためだけに属性を設定しない
+=================================================
+
+クラスはとても有効ですが、 ``self`` の扱い方を間違えるとクラス内の処理が読みにくくなります。
+たとえば、次の例を見てください。
+
+具体的な失敗
+===================
+
+.. code:: python
+
+   from datetime import date
+   
+   
+   class User:
+       def __init__(self, username, birthday):
+           self.username = username
+           self.birthday = birthday
+           self.age = None
+       
+       def calc_age(self):
+           today = date.today()
+           age = (self.birthday - today).years
+           if (self.birthday.month, self.birthday.day) < (today.month, today.day):
+               age -= 1
+           self.age = age
+   
+       def age_display(self):
+           return f"{self.age}歳"
+
+このクラスでは ``self.age`` 属性を介して、 ``age_display`` メソッドが ``calc_age`` に依存しています。
+``calc_age`` メソッドの前に ``age_display`` を呼び出してしまうと ``"None歳"`` という文字が返されてしまいます。
+
+``__init__`` 内で ``calc_age`` を呼び出すようにした場合も、 ``birthday`` を変更すると ``calc_age`` を呼び出す必要があります。
+そもそも「事前に他のメソッドを呼び出す必要がある」という設計にするのが良くありません。
+
+ベストプラクティス
+===============================
+
+別のメソッドに値を渡すためだけに属性を設定するのはやめましょう。
+
+.. code:: python
+
+   from datetime import date
+   
+   
+   class User:
+       def __init__(self, username, birthday):
+           self.username = username
+           self.birthday = birthday
+       
+       @property
+       def age(self):
+           today = date.today()
+           age = (self.birthday - today).years
+           if (self.birthday.month, self.birthday.day) < (today.month, today.day):
+               age -= 1
+           return age
+   
+       def age_display(self):
+           return f"{self.age}歳"
+
+``age`` を属性という状態にするのでなくて、 ``@property`` に実装するほうが良いです。
+変数や属性という「状態」を減らすことで、考えるべきこと、覚えておくべきことが減らせるからです。
+
+.. omission::

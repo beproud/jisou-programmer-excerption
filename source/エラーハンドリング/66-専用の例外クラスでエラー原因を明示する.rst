@@ -1,0 +1,117 @@
+=========================================
+66:専用の例外クラスでエラー原因を明示する
+=========================================
+
+.. maigo:: エラー理由がわからない
+
+    * 後輩W：ユーザーから、メールがあるはずなのに表示されないっていう問い合わせが来てるんですが、いま別件対応中なので見てもらえますか？
+    * 先輩T：いいよ。問い合わせにエラーメッセージとか書かれてた？
+    * 後輩W：はい。「メールを受信できません」と表示されたみたいです。
+    * －10分後－
+    * 先輩T：実装コードはすぐ見つかったけど、これじゃあ何が原因でエラーになったのかわからないぞ……。
+
+      .. code:: python
+
+            mail = mail_service.get_newest_mail()
+            if isinstance(mail, str):
+                return mail  # <-- 文字列のときは常に"メールを受信できません"だった（先輩T）
+
+    * 先輩T：この実装、 ``mail_service.get_newest_mail()`` で異常があったことはわかるんだけど、何が起きても「メールを受信できません」と返しているから異常の原因がわからないよ。原因にあわせて文面を変えるべきだし、異常時には例外を上げるべきじゃないかな？
+    * 後輩W：そう思ったんですけど、ちょうど良い例外クラスがPythonになかったんです。
+    * 先輩T：そういうときは、例外クラスを自分で定義して使えばいいよ。
+
+エラー発生時や期待どおりに動作しないときなどに、ユーザーから問い合わせを受けて調査を行うことがあります。
+このとき、画面表示にユーザー向けの情報が不足していると、調査が難しくなります。
+
+具体的な失敗
+===============
+
+問題のあるコードは以下のように実装されています。
+
+**views.py**
+
+.. code:: python
+
+    from . import service
+
+    def get_newest_mail(user):
+        """
+        ユーザーのメールアドレスに届いている1時間以内の最新のメールを取得する
+        """
+        mail_service = service.get_mail_service()
+        if not mail_service.login(user.email, user.email_password):
+            return 'ログインできません'
+        mail = mail_service.get_newest_mail()
+        if isinstance(mail, str):
+            return mail
+        if mail.date < datetime.now() - timedelta(hours=1):
+            return 'メールがありません'
+        return mail
+
+    def newmail(request):
+        mail = get_newest_mail(request.user)
+        if isinstance(mail, str):
+            return render(request, 'no-mail.html', context={'message': mail})
+        context = {
+            'from': mail.from_, 'to': mail.to,
+            'date': mail.date, 'subject': mail.subject,
+            'excerpt': mail.body[:100],
+        }
+        return render(request, 'new-mail.html', context=context)
+
+
+``get_newest_mail`` 関数やそこから呼び出している ``mail_service.get_newest_mail()`` は、例外を握り潰してはいませんが、エラーが発生した場合に文字列を返してしまっています。このため、呼び出し元では ``if isinstance`` で文字列かどうかを判定して場合分けの処理が必要です。
+また、「文字列が返されたときは常にエラー」というわけでもなく、正常系と異常系の処理の見分けがつかない実装コードになっているため、コードを読み解くのが難しくなっています。
+
+ベストプラクティス
+=========================
+
+.. index:: 例外
+.. index:: 例外クラス
+
+専用の例外クラスを自作して、エラーを明示的に実装しましょう。
+
+発生するエラーの種類ごとに専用の例外クラスを定義して、それぞれ異なるエラーメッセージを表示するように実装します。
+また、各例外の親クラスを定義しておけば、例外処理を行うコードで同系統の例外をまとめて捕まえられるため、簡潔でわかりやすい実装になります。
+前述のコード用に例外クラスを実装すると、以下のようになります。
+
+**exceptions.py**
+
+.. code:: python
+
+    class MailReceivingError(Exception):
+        pretext = ''
+        def __init__(self, message, *args):
+            if self.pretext:
+                message = f"{self.pretext}: {message}"
+            super().__init__(message, *args)
+
+    class MailConnectionError(MailReceivingError):
+        pretext = '接続エラー'
+
+    class MailAuthError(MailReceivingError):
+        pretext = '認証エラー'
+
+    class MailHeaderError(MailReceivingError):
+        pretext = 'メールヘッダーエラー'
+
+このように実装した例外クラスは、以下のように動作します。
+
+.. code:: python
+
+    >>> e = MailHeaderError('Dateのフォーマットが不正です')
+    >>> str(e)
+    'メールヘッダーエラー: Dateのフォーマットが不正です'
+    >>> raise e
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+    exceptions.MailHeaderError: メールヘッダーエラー: Dateのフォーマットが不正です
+
+.. omission::
+
+関連
+======
+
+* :doc:`64-例外を握り潰さない`
+* :doc:`../ロギング/71-info、errorだけでなくログレベルを使い分ける`
+* :doc:`../ロギング/75-Sentryでエラーログを通知／監視する`

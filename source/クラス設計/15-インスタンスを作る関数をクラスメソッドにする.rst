@@ -1,0 +1,66 @@
+===============================================
+15:インスタンスを作る関数をクラスメソッドにする
+===============================================
+
+クラスメソッドの使いどころは少し難しいかもしれません。
+具体的にどのようなクラスと関数の場合にクラスメソッドにできるか考えてみましょう。
+
+具体的な失敗
+===================
+
+.. code:: python
+
+   from dataclasses import dataclass
+   
+   
+   @dataclass
+   class Product:
+       id: int
+       name: str
+       
+       
+   def retrieve_product(id):
+       res = requests.get(f'/api/products/{id}')
+       data = res.json()
+       return Product(
+           id=data['id'],
+           name=data['name']
+       )
+
+このクラスと関数の実装は問題ありませんが、このクラスを使う別のモジュールから、 ``Product`` クラスと ``retrieve_product`` 関数をインポートする必要があります。
+
+ベストプラクティス
+==================
+
+外部APIから ``requests`` で情報を取得する処理を ``retrieve_product_detail`` 関数に分離して、以下のように実装します。
+
+.. code:: python
+
+   from dataclasses import dataclass
+   
+   from .dataapi import retrieve_product_detail
+
+
+   @dataclass
+   class Product:
+       id: int
+       name: str
+       
+       @classmethod
+       def retrieve(cls, id: int) -> 'Product':
+           """ データAPIから商品の情報を取得して、インスタンスとして返す
+           """
+           data = retrieve_product_detail(id)
+           return cls(
+               id=data['id'],
+               name=data['name'],
+           )
+
+このように実装する利点は、 ``Product`` をインポートすれば値を取得する処理も使えることです。
+
+.. omission::
+
+関連
+=====
+
+* :doc:`../モジュール設計/18-モジュール名のオススメ集`

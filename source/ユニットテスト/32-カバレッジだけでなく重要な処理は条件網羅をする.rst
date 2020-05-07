@@ -1,0 +1,71 @@
+=================================================
+32:カバレッジだけでなく重要な処理は条件網羅をする
+=================================================
+
+具体的な失敗
+===================
+
+テスト対象として以下の関数を考えます。
+この処理はユーザーを認証する重要なプログラムです。
+
+.. code:: python
+
+   def find_auth_user(username=None, password=None, team_name=None):
+      try:
+          users = User.objects.select_related('team').filter(
+              (Q(username=username) | Q(email__iexact=username)),
+          )
+          if team_name:
+              # チームユーザー
+              users = users.filter(team__name=team_name)
+          else:
+              # 個人ユーザー
+              users = users.filter(team_id=Team.PERSONAL_USERS_ID)
+          return users.get()
+      except User.DoesNotExist:
+          return None
+
+この関数のテストとして分岐網羅をすると、以下3つのメソッドが必要です。
+
+.. code:: python
+
+   class TestFindAuthUser:
+       def test_team(self):
+           """ チームユーザーの場合 """
+           
+       def test_personal(self):
+           """ 個人ユーザーの場合 """
+           
+       def test_not_exist(self):
+           """ ユーザーが存在しない場合 """
+
+この3つだとユーザーを取得する細かい処理までは確認できません。
+たとえば ``find_auth_user`` は ``username`` と ``email`` の両方でユーザーを指定できますが、分岐網羅では片方だけしか網羅できません。
+
+.. omission::
+
+ベストプラクティス
+==================
+
+上記のテストメソッドに、2つ追加しましょう。
+
+.. code:: python
+
+   class TestFindAuthUser:
+       ...  # 迷子コードのテストにさらに追加して
+       
+       def test_email(self):
+           """ メールアドレス指定で取得 """
+           
+       def test_email_case_insensitive(self):
+           """ メールアドレスでは大文字小文字を区別しない """
+
+今回の場合は ``username`` で認証する場合と、 ``email`` で認証する場合それぞれのテストを書きましょう。
+また ``email`` には「大文字小文字を区別しない確認」も書きます。
+
+次のような処理も条件網羅すべきです。
+
+* 支払い
+* 認証
+* 引当て
+* データの変更、削除（変更や削除は後戻りできない作業な場合が多いので重要）

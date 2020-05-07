@@ -1,0 +1,65 @@
+===================================
+11:コントローラーには処理を書かない
+===================================
+
+``main()`` 関数や :index:`Webフレームワーク` の :index:`コントローラー` （DjangoのView）に処理を書きすぎてはいませんか？
+
+具体的な失敗
+====================
+
+ここではWebフレームワークDjangoで、 :index:`View関数` に書かれた処理を例に説明します。
+
+.. code-block:: python
+
+   @login_required
+   def item_list_view(request, shop_id):
+       shop = get_object_or_404(Shop, id=shop_id)
+       if not request.user.memberships.filter(role=Membership.ROLE_OWNER, shop=shop).exists():
+           return HttpResponseForbidden()
+   
+       items = Item.objects.filter(shop=shop,
+                                   published_at__isnull=False)
+       if "search" in request.GET:
+           search_text = request.GET["search"]
+           if len(search_text) < 2:
+               return TemplateResnponse(request, "items/item_list.html",
+                                        {"items": items, "error": "文字列が短すぎます"})
+           items = items.filter(name__contains=search_text)
+       prices = []
+       for item in items:
+           price = int(item.price * 1.1)
+           prices.append(f"{price:,}円")
+       items = zip(items, prices)
+       return TemplateResponse(request, "items/item_list.html", {"items": items})
+
+このプログラムは ``item_list_view`` 関数に処理を書きすぎています。
+
+.. omission::
+
+
+ベストプラクティス
+===========================
+
+コントローラーでは値の入出力と、処理全体の制御のみ行うべきです。
+コントローラーに細かい処理まで実装すると、コントローラーに書かれるプログラムが多くなりすぎます。
+それでは処理全体の見通しが悪くなるだけでなく、 :index:`単体テスト` もしにくくなります。
+上記の ``item_list_view`` View関数内の処理もほとんどは別の関数や :index:`コンポーネント` に分離して実装すべきです。
+
+処理をそれぞれ分離したあとの ``item_list_view`` 関数は以下のようになります。
+
+.. code-block:: python
+   :caption: views.py
+
+    @login_required
+    def item_list_view(request, shop_id):
+        shop = get_object_or_404(Shop, id=shop_id)
+        validate_membership_permission(request.user, shop, Membership.ROLE_OWNER)
+        
+        items = Item.objects.filter(shop=shop).published()
+        form = ItemSearchForm(request.GET)
+        if form.is_valid():
+            items = form.filter_items(items)
+        return TemplateResponse(request, "items/item_list.html",
+                                {"items": items, "form": form})
+
+.. omission::

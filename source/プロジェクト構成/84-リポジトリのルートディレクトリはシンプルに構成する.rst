@@ -1,0 +1,60 @@
+=====================================================
+84:リポジトリのルートディレクトリはシンプルに構成する
+=====================================================
+
+.. maigo:: リポジトリルートにファイルがたくさんありすぎる
+
+    * 後輩W：先輩、引き継いだプロジェクトのリポジトリなんですけど、ルートディレクトリにファイルがありすぎて何から手をつけて良いかわからないんです。
+    * 先輩T：READMEファイルはある？　あればそこに説明が書いてあるんじゃない？
+    * 後輩W：READMEにはファイルの説明は書いてなくて、sshの秘密鍵の作り方と、Vagrant [#vagrant]_ とDocker [#docker]_ のインストール方法が書いてありました。
+    * 先輩T：まじか……。それで、ルートディレクトリにはどんなファイルとディレクトリがあるの？
+
+リポジトリのルートディレクトリは油断すると多くのファイルが置かれてしまいます。
+特に最近では、多くのツールやサービスがリポジトリのルートディレクトリにある特定のファイル名で動作を設定できるようになっているため、ルートディレクトリは何でも置き場になってしまう傾向があります。
+
+.. [#vagrant] https://www.vagrantup.com/
+.. [#docker] https://www.docker.com/
+
+具体的な失敗
+===============
+
+リポジトリルートに以下のようなファイルやディレクトリがあると、それぞれの用途を短時間で把握するのは難しいでしょう。
+
+.. code:: text
+
+    .circleci/            config/                     manage.py
+    CHANGELOG.md          deploy.md                   package-lock.json
+    Makefile              deployment/                 package.json
+    Pipfile               docker/                     pull_request_template.md
+    Pipfile.lock          docker-compose.local.yml    static/
+    README.md             docker-compose.yml          templates/
+    Vagrantfile           file/                       test.md
+    accounts/             front/                      tests/
+    api/                  help/                       tox.ini
+    batch/                issue_template.md
+    changelog/            log/
+
+.. index:: README
+
+このリポジトリルートは、いろいろな目的のファイルが全部入り状態になってしまっているため、扱いにくい状態です。
+この状態でファイル構成の説明をREADMEに書いても、焼け石に水です。
+一度このような状態になってしまうと変更の影響範囲が予想できないため、構造の整理整頓に手間がかかります。
+
+.. omission::
+
+ベストプラクティス
+========================
+
+リポジトリのルートディレクトリには、リポジトリの主目的に合った、見た人に注目してほしいファイルやディレクトリだけを置きましょう。
+たとえば、リポジトリの主目的がPyPIに公開するPythonのパッケージであれば、 ``README`` と ``LICENSE`` の他に、パッケージングに必須となる  ``setup.py`` や ``pyproject.toml`` などの設定ファイルを置くのが一般的です。
+こういったファイルがルートディレクトリにあれば、リポジトリを見た人はREADMEを詳しく読まなくてもリポジトリの目的を把握できます。
+
+.. code-block:: text
+    :caption: 重要度に応じて誘導するように整理しましょう
+
+    .circleci/      Makefile       changelog/     doc/
+    .github/        README.md      deployment/    docker/
+    CHANGELOG.md    Vagrantfile    djangoapp/     vueapp/
+
+.. omission::
+

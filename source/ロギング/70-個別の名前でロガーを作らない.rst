@@ -1,0 +1,62 @@
+===============================
+70:個別の名前でロガーを作らない
+===============================
+
+ロギングの設定が上手に書かれていないと、煩雑になりがちです。
+ここではロガーの効果的な設定方法を学びましょう。
+
+具体的な失敗
+================
+
+.. code:: python
+
+   logging.config.dictConfig({
+   	...
+   	"loggers": {
+   	    "product_detail_view": {},
+   	    "product_edit_view": {},
+   	    "import_products_command": {},
+   	    "export_sales_command": {},
+   	    "sync_ma_events": {},
+   	    "sync_payment_events": {},
+   	    ...
+   	}
+   })
+
+この設定の場合、ロガーを1つ増やすたびにロギングの設定を足す必要があります。
+
+ベストプラクティス
+==================
+
+ロガーはモジュールパス ``__name__`` を使って取得しましょう。
+
+.. code:: python
+
+   import logging
+   
+   logger = logging.getLogger(__name__)
+
+こうするとロギングの設定はまとめて書けるようになります。
+
+.. code:: python
+
+   logging.config.dictConfig({
+       ...
+       "loggers": {
+            "product.views": {},
+            "product.management.commands": {},
+       }
+   })
+
+Pythonでは「 ``.`` 」区切りで「上位」（左側）のロガーが適応されます。
+ロガーの名前が ``product.views.api`` のときは ``product.views.api`` 、 ``product.views`` 、
+``product`` `` と順にログの設定を探して、設定があれば使われます。
+
+Pythonは ``__name__`` で現在のモジュールパスが取得できるので、
+``product/views/api.py`` というファイルでは ``product.views.api`` になります。
+
+ロガーすべてに毎度名前をつけていると、ロガーごとに設定が必要になり面倒です。まとめて設定することで設定の数を減らせます。
+Pythonのモジュール名にすることでロガーの命名規則を考える必要もなくなります。
+
+.. omission::
+

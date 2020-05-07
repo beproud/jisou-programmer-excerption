@@ -1,0 +1,86 @@
+=========================================
+26:テストケース毎にテストデータを用意する
+=========================================
+
+テストコードを修正したら、関係のないところでテストが失敗してしまって困ったことはありませんか？　
+テストデータを使い回すと、意図しないテストの失敗を招いてしまいます。
+
+具体的な失敗
+================
+
+``square_list`` という整数のリストの各要素を2乗してまたリストとして返す関数があるとします。
+
+
+.. code:: python
+
+   # spam.py ----
+
+   def square_list(nums):
+       return [n * n for n in nums]
+
+   # 実行イメージ
+   # square_list([1, 2, 3]) => [1, 4, 9]
+
+
+この関数に対して、下記のようなテストコードを書いたとします。
+
+.. code:: python
+
+ # 本来は別のテスト使うテストデータ生成関数をimport
+ from spam.tests.other_fixtures import get_other_fixtures
+ 
+ class TestSquareList:
+ 
+     def test_square(self):
+         # Arrange -- 
+         from spam import square_list
+ 
+         test_list = get_other_fixtures() # => [1, 2, 3] がテストデータとして取得できる
+         
+         # Act --
+         actual = square_list(test_list)
+ 
+         # Assert --
+         expected = [1, 4, 9]
+         assert actual == expected
+
+
+`square_list` という関数をテストするために、たまたま他のテストで用意した整数のリストを
+返す関数 `get_other_fixtures` を利用しています。
+
+この状態で、他の開発者が **別のテストを修正する目的** で ``get_other_fixtures`` 関数の戻り値を
+変更したらどうなるでしょうか？　もちろんこの ``TestSqureList`` のテストケースは失敗してしまいます。
+
+このテストを書いた本人ならば、すぐに原因もわかるかもしれませんが、他の開発者は別のテストを
+修正しているつもりなので、原因がわかるまでに時間が掛かってしまうでしょう。
+
+
+ベストプラクティス
+==================
+
+上記のようなトラブルを避けるためにも、 :index:`フィクスチャー` を複数のテスト間でに使い回すのを極力避けましょう。
+理想的には個々のテストケースの中でのみ有効なフィクスチャーを用意して、他のテストには影響を与えないようにしましょう。
+
+.. code:: python
+
+ class TestSquareList:
+ 
+     def test_square(self):
+         # Arrange -- 
+         from spam import square_list
+ 
+         test_list = [1, 2, 3]  # 専用のテストデータを用意
+         
+         # Act --
+         actual = square_list(test_list)
+ 
+         # Assert --
+         expected = [1, 4, 9]
+         assert actual == expected
+
+
+フィクスチャーを使い回さないという考えは、 :index:`factory-boy` などのフィクスチャーを自動生成するライブラリを使うときにも適用できます。
+たとえばよくあるのが、Factoryクラスのデフォルト値に依存したテストを書いてしまうケースです。
+
+.. omission::
+

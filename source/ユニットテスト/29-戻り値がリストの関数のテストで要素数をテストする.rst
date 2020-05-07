@@ -1,0 +1,51 @@
+===================================================
+29:戻り値がリストの関数のテストで要素数をテストする
+===================================================
+
+単体テストで結果の確認するとき、よく陥る罠があります。
+リスト（正確にはIterable）のテストをするときに、要素数を確認しないことです。
+
+具体的な失敗
+======================
+
+テスト対象として、以下の関数を考えます。
+
+.. code-block:: python
+   :caption: items.py
+
+   def load_items():
+       return [{"id": 1, "name": "Coffee"}, {"id": 2, "name": "Cake"}]
+
+この ``load_items`` の動作確認をするとき、以下のように書いてしまっていませんか？
+
+.. code-block:: python
+   :caption: tests.py
+
+   class TestLoadItems:
+       def test_load(self):
+           actual = load_items()
+
+           assert actual[0] == {"id": 1, "name": "Coffee"}
+           assert actual[1] == {"id": 2, "name": "Cake"}
+
+要素数を確認しないと、リストに3つ目の値がある可能性があるのが問題です。
+予期しないデータが追加で返されていてもバグに気づけません。
+たとえば ``load_items`` のバグで、常にリストの最後に空の辞書が入ってしまうなどが考えられます。
+
+ベストプラクティス
+==================
+
+リスト ``actual`` の長さを必ず確認しましょう。
+
+.. code-block:: python
+   :caption: tests.py
+
+   class TestLoadItems:
+       def test_load(self):
+           actual = load_items()
+
+           assert len(actual) == 2
+           assert actual[0] == {"id": 1, "name": "Coffee"}
+           assert actual[1] == {"id": 2, "name": "Cake"}
+
+.. omission::

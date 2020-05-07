@@ -1,0 +1,191 @@
+=================================================
+22:単体テストをする観点から実装の設計を洗練させる
+=================================================
+
+単体テストの意味は何でしょうか？　
+もちろんテスト対象の動作を保証することも大切ですが、「単体テストしやすいか？」という観点から実装の設計を洗練させることも大切です。
+「テストしにくい実装は設計が悪い」という感覚を身につけましょう。
+
+具体的な失敗
+=====================
+
+まずテスト対象になる、イマイチな設計の関数を見てみましょう。
+この関数は ``sales.csv`` を読み込んで、合計の金額と、CSVファイルから読み込んだデータのリストを返します。
+
+.. code-block:: python
+   :caption: sales.py
+
+   import csv
+   
+   
+   def load_sales(sales_path='./sales.csv'):
+       sales = []
+       with open(sales_path, encoding="utf-8") as f:
+           for sale in csv.DictReader(f):
+               # 値の型変換
+               try:
+                   sale['price'] = int(sale['price'])
+                   sale['amount'] = int(sale['amount'])
+               except (ValueError, TypeError, KeyError):
+                   continue
+               # 値のチェック
+               if sale['price'] <= 0:
+                   continue
+               if sale['amount'] <= 0:
+                   continue
+               sales.append(sale)
+       
+       # 売上の計算
+       sum_price = 0
+       for sale in sales:
+           sum_price += sale['amount'] * sale['price']
+       return sum_price, sales
+
+この関数をテストしようとすると、以下のようになります。
+
+.. code-block:: python
+   :caption: tests.py
+
+   class TestLoadSales:
+       def test_invalid_row(self, tmpdir):
+           test_file = tmpdir.join("test.csv")
+           test_file.write("""id,item_id,price
+   1,1,100
+   2,1,100
+   """)
+           sum_price, actual_sales = load_sales(test_file.strpath)
+           assert sum_price == 0
+           assert len(actual_sales) == 0
+
+       def test_invalid_type_amount(self, tmpdir):
+           # 解説: テストのたびにCSVファイルを毎度用意する必要がある
+
+           test_file = tmpdir.join("test.csv")
+           test_file.write("""id,item_id,price,amount
+   1,1,100,foobar
+   2,1,200,2
+   """)
+           sum_price, actual_sales = load_sales(test_file.strpath)
+           assert sum_price == 400
+           assert len(actual_sales) == 1
+
+       def test_invalid_type_price(self):
+            ...
+
+       def test_invalid_value_amount(self):
+           ...
+
+       def test_invalid_value_price(self):
+           ...
+
+       def test_sum(self):
+           ...
+
+``load_sales`` 関数をテストするときは、毎度CSVファイルを用意する必要があり面倒です。
+無効な行がある場合を確認するとき、値が無効なとき、価格が無効なときなど、個別の確認をするためにCSVファイルの用意が必要です。
+小さな違いの確認のために、たくさんコードを書く必要があります。
+
+ベストプラクティス
+==================
+
+単体テストを通して、テスト対象コードの設計を見直しましょう。
+
+* 関数の引数や :index:`フィクスチャー` に大げさな値が必要な設計にしない
+* 処理を分離して、すべての動作確認にすべてのデータが必要ないようにする
+* 関数やクラスを分離して、細かいテストは分離した関数、クラスを対象に行う
+  （分離した関数を呼び出す関数では、細かいテストは書かないようにする）
+
+元の処理も以下のように改善しました。
+
+.. code-block:: python
+   :caption: sales.py
+
+   import csv
+   from dataclasses import dataclass
+   from typing import List
+
+
+   # 解説: 売上（CSVの各行）を表すクラスに分離する
+   @dataclass
+   class Sale:
+       id: int
+       item_id: int
+       price: int
+       amount: int
+
+       def validate(self):
+          if sale['price'] <= 0:
+              raise ValueError("Invalid sale.price")
+          if sale['amount'] <= 0:
+              raise ValueError("Invalid sale.amount")
+
+      # 解説: 各売上の料金を計算する処理をSalesに実装
+       @property
+       def price(self):
+           return self.amount * self.price
+
+
+   @dataclass
+   class Sales:
+       data: List[Sale]
+
+       @property
+       def price(self):
+           return sum(sale.price for sale in self.data)
+
+       @classmethod
+       def from_asset(cls, path="./sales.csv"):
+           data = []
+           with open(path, encoding="utf-8") as f:
+               reader = csv.DictReader(f)
+               for row in reader:
+                   try:
+                       sale = Sale(**row)
+                       sale.validate()
+                   except Exception:
+                       # TODO: Logging
+                       continue
+                   data.append(sale)
+           return cls(data=data)
+
+プログラムの行数は少し長くなりましたが、テストのしやすさ、 :index:`再利用性` 、 :index:`可読性` が向上しています。
+単体テストも、各クラス ``Sale`` や ``Sales`` ごとに細かく書けます。
+
+.. code:: python
+
+   import pytest
+
+
+   class TestSale:
+       def test_validate_invalid_price(self):
+           # 解説: 値の確認をするテストでCSVを用意する必要がなくなった
+           sale = Sale(1, 1, 0, 2)
+           with pytest.raises(ValueError):
+               sale.validate()
+
+       def test_validate_invalid_amount(self):
+           sale = Sale(1, 1, 1000, 0)
+           with pytest.raises(ValueError):
+               sale.validate()
+
+       def test_price(self):
+           ...
+
+
+   class TestSales:
+       def test_from_asset_invalid_row(self):
+           ...
+
+       def test_from_asset(self):
+           ...
+
+       def test_price(self):
+           ...
+
+.. omission::
+
+関連
+=======
+
+* :doc:`26-テストケース毎にテストデータを用意する`
+* :doc:`31-過剰なmockを避ける`
