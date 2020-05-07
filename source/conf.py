@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('./ext'))
 
+master_doc = 'index'
 project = '自走プログラマー【抜粋版】'
 copyright = '2020, BeProud Inc.'
 author = ' 清原 弘貴、清水川 貴之、tell-k、株式会社ビープラウド（監修）'
