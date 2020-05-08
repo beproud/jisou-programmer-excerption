@@ -24,11 +24,12 @@ rst_prolog = """
 """
 
 
+html_title = project
 html_theme = 'bizstyle'
 html_static_path = ['_static']
 html_sidebars = {
-    # add 'pageinfo.html' to display the panel.
-    '**': ['bookbanner.html', 'localtoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html']
+    'index': ['searchbox.html', 'bookbanner.html', 'localtoc.html', 'license.html', ],
+    '**': ['searchbox.html', 'bookbanner.html', 'license.html'],
 }
 
 

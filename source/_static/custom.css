@@ -87,3 +87,6 @@ div.books a.book-tspp {
 div.books div.sale > ul > li {
     margin: 10px 0;
 }
+div.license > ul > li {
+    margin: 10px 0;
+}
