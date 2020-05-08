@@ -10,8 +10,8 @@ author = ' 清原 弘貴、清水川 貴之、tell-k、株式会社ビープラ�
 extensions = [
     'sphinx.ext.todo',
     'support',
+    'ogtag',
 ]
-todo_include_todos = False
 templates_path = ['_templates']
 language = 'ja'
 show_authors = False
@@ -23,6 +23,12 @@ rst_prolog = """
    :target: https://gihyo.jp/book/2020/978-4-297-11197-7
 """
 
+# ogp/twitter card
+
+og_site_url = 'https://jisou-programmer.beproud.jp/'
+og_twitter_site = '@beproud_jp'
+
+# output: html
 
 html_title = project
 html_theme = 'bizstyle'
@@ -31,7 +37,9 @@ html_sidebars = {
     'index': ['searchbox.html', 'bookbanner.html', 'localtoc.html', 'license.html', ],
     '**': ['searchbox.html', 'bookbanner.html', 'license.html'],
 }
+html_last_updated_fmt = '%Y/%m/%d'
 
+# output: latex
 
 latex_documents = [
     ('index', 'archbook.tex', project, author, 'manual', True),
