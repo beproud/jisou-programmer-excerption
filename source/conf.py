@@ -38,6 +38,7 @@ html_sidebars = {
     '**': ['searchbox.html', 'bookbanner.html', 'license.html'],
 }
 html_last_updated_fmt = '%Y/%m/%d'
+html_favicon = '_static/favicon.ico'
 
 # output: latex
 

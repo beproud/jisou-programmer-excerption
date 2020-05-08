@@ -1,5 +1,10 @@
 {% extends "!layout.html" %}
 
+{%- block extrahead %}
+<link rel="apple-touch-icon" type="image/png" href="/_static/apple-touch-icon-180x180.png">
+<link rel="icon" type="image/png" href="/_static/icon-192x192.png">
+{% endblock %}
+
 {%- block footer %}
     <div class="footer" role="contentinfo">
     {%- if show_source and has_source and sourcename %}
