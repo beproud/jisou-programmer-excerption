@@ -1,3 +1,17 @@
+/* MOBILE LAYOUT (PORTRAIT/320px) */
+@media only screen and (max-width: 767px) {
+    div.body {
+        min-width: auto;
+    }
+}
+
+/* MOBILE LAYOUT (LANDSCAPE/480px) */
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+    div.body {
+        min-width: auto;
+    }
+}
+
 /* 本文のフォント設定: 文字サイズ */
 .body {
     font-size: 130%
@@ -40,7 +54,11 @@ h2 {
 /* トップページ: 自走プログラマー へのリンク */
 div.wraparound {
     padding: 1em;
-    display: flex;
+}
+@media only screen and (min-width: 480px) {
+    div.wraparound {
+        display: flex;
+    }
 }
 div.wraparound p {
     padding: 0 1em;
@@ -58,10 +76,21 @@ div.wraparound a img {
 div.omission {
     background-color: #f0fff0;
     border: .1em dotted #008020;
-    padding: 1em;
-    margin: 1em 3em;
-    font-size: 110%;
     display: flex;
+}
+@media only screen and (max-width: 767px) {
+    div.omission {
+        padding: 0.2em;
+        margin: 0;
+        font-size: inherit;
+    }
+}
+@media only screen and (min-width: 768px) {
+    div.omission {
+        padding: 1em;
+        margin: 1em 3em;
+        font-size: 110%;
+    }
 }
 div.omission p {
     padding: 0 1em 0 0;
