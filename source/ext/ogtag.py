@@ -1,6 +1,7 @@
 from docutils import nodes
 from sphinx import addnodes
 from urllib.parse import urljoin
+import re
 
 
 class Visitor:
@@ -64,15 +65,22 @@ def get_og_tags(context, doctree, config):
     # og:image
     og_image = visitor.get_og_image_url(page_url)
 
+    # og:title
+    try:
+        title = next(doctree.findall(nodes.title)).astext()
+    except StopIteration:
+        title = context['title']
+    title = re.sub(r"<[^>]*?>", "", title)
+
     ## OGP
     tags = '''
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="{cfg[og_twitter_site]}" />
     <meta property="og:site_name" content="{ctx[shorttitle]}">
-    <meta property="og:title" content="{ctx[title]}">
+    <meta property="og:title" content="{title}">
     <meta property="og:description" content="{desc}">
     <meta property='og:url' content="{page_url}">
-    '''.format(ctx=context, desc=og_desc, page_url=page_url, cfg=config)
+    '''.format(title=title, ctx=context, desc=og_desc, page_url=page_url, cfg=config)
     if og_image:
         tags += '<meta property="og:image" content="{url}">'.format(url=og_image)
     return tags
