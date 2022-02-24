@@ -59,18 +59,18 @@ def get_og_tags(context, doctree, config):
     visitor = Visitor(doctree)
     doctree.walkabout(visitor)
 
-    # og:description
-    og_desc = visitor.get_og_description()
-
-    # og:image
-    og_image = visitor.get_og_image_url(page_url)
-
     # og:title
     try:
         title = next(doctree.findall(nodes.title)).astext()
     except StopIteration:
         title = context['title']
     title = re.sub(r"<[^>]*?>", "", title)
+
+    # og:description
+    og_desc = visitor.get_og_description() or title
+
+    # og:image
+    og_image = visitor.get_og_image_url(page_url)
 
     ## OGP
     tags = '''
