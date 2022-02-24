@@ -6,15 +6,18 @@ import re
 
 class Visitor:
 
-    def __init__(self, document):
+    def __init__(self, document, skip_toctree=True):
         self.document = document
+        self.skip_toctree = skip_toctree
         self.text_list = []
         self.images = []
         self.n_sections = 0
 
     def dispatch_visit(self, node):
         # toctreeは飛ばす
-        if isinstance(node, addnodes.compact_paragraph) and node.get('toctree'):
+        if (self.skip_toctree and
+                isinstance(node, addnodes.compact_paragraph) and
+                node.get('toctree')):
             raise nodes.SkipChildren
 
         # 画像を収集
@@ -38,6 +41,7 @@ class Visitor:
     def get_og_description(self):
         # TODO: 何文字までが良いのか?
         text = ' '.join(self.text_list)
+        text = text.replace('\n', ' ')
         if len(text) > 200:
             text = text[:197] + '...'
         return text
@@ -58,6 +62,9 @@ def get_og_tags(context, doctree, config):
     # collection
     visitor = Visitor(doctree)
     doctree.walkabout(visitor)
+    if not visitor.get_og_description():
+        visitor = Visitor(doctree, skip_toctree=False)
+        doctree.walkabout(visitor)
 
     # og:title
     try:
