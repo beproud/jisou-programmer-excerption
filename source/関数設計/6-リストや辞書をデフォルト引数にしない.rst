@@ -28,7 +28,8 @@ Pythonのデフォルト引数は便利な機能ですが、使ううえでの�
 .. code:: python
 
     def foo(values=None):
-        values = values or []
+        if values is None:
+            values = []
         values.append("Hi")
         return values
 
