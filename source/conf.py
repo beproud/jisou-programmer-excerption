@@ -10,7 +10,7 @@ author = ' 清原 弘貴、清水川 貴之、tell-k、株式会社ビープラ�
 extensions = [
     'sphinx.ext.todo',
     'support',
-    'ogtag',
+    'sphinxext.opengraph',
 ]
 templates_path = ['_templates']
 language = 'ja'
@@ -25,8 +25,15 @@ rst_prolog = """
 
 # ogp/twitter card
 
-og_site_url = 'https://jisou-programmer.beproud.jp/'
-og_twitter_site = '@beproud_jp'
+ogp_site_url = 'https://jisou-programmer.beproud.jp/'
+ogp_site_name = project
+ogp_image = 'https://jisou-programmer.beproud.jp/_static/cover.jpg'
+ogp_image_alt = '自走プログラマー（2020年, 技術評論社）'
+ogp_type = 'article'
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary" />',
+    '<meta name="twitter:site" content="@beproud_jp" />',
+]
 
 # output: html
 
@@ -67,10 +74,10 @@ latex_elements = {
         {0.5em} % sep
         {\vspace{3pt}\huge} % before-code
         [{\vspace{2pt}\titlerule[2pt]}] % after-code
-        
+
       \setcounter{secnumdepth}{2}
       \setcounter{tocdepth}{2}
-      
+
       \usepackage{hyperref}
       \usepackage{pxjahyper}
 
